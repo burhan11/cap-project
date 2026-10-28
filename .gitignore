@@ -1,0 +1,6 @@
+﻿node_modules/
+gen/
+*.sqlite
+default-env.json
+.env
+@cds-models
