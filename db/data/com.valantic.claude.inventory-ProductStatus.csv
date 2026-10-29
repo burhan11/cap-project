@@ -1,0 +1,4 @@
+code;name;descr
+A;Available;Product is in stock and can be ordered
+D;Discontinued;Product is no longer offered
+O;OutOfStock;Product is temporarily out of stock

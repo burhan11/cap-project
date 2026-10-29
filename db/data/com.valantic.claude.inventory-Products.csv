@@ -1,0 +1,6 @@
+ID;name;description;price;currency_code;stock;category_code;status_code;supplier_ID;createdAt;createdBy;modifiedAt;modifiedBy
+b2c3d4e5-0001-4b6c-9d0e-000000000001;Wireless Bluetooth Headphones;Over-ear noise-cancelling headphones with 30h battery;89.99;EUR;150;EL;A;a1b2c3d4-0001-4a5b-8c9d-000000000001;2026-02-01T09:00:00Z;admin;2026-02-01T09:00:00Z;admin
+b2c3d4e5-0002-4b6c-9d0e-000000000002;Gel Pen Set (12 pcs);Smooth-writing 0.5mm gel pens in assorted colours;12.50;JPY;0;ST;O;a1b2c3d4-0002-4a5b-8c9d-000000000002;2026-02-03T10:00:00Z;admin;2026-03-10T12:30:00Z;admin
+b2c3d4e5-0003-4b6c-9d0e-000000000003;Organic Basmati Rice 5kg;Premium aged long-grain basmati rice;18.75;INR;420;GR;A;a1b2c3d4-0003-4a5b-8c9d-000000000003;2026-02-05T11:15:00Z;admin;2026-02-05T11:15:00Z;admin
+b2c3d4e5-0004-4b6c-9d0e-000000000004;Ergonomic Office Chair;Adjustable mesh-back chair with lumbar support;249.00;BRL;35;FU;A;a1b2c3d4-0004-4a5b-8c9d-000000000004;2026-02-08T13:40:00Z;admin;2026-02-08T13:40:00Z;admin
+b2c3d4e5-0005-4b6c-9d0e-000000000005;Legacy USB-A Hub;4-port USB 2.0 hub, replaced by USB-C model;14.90;EUR;8;EL;D;a1b2c3d4-0001-4a5b-8c9d-000000000001;2026-02-12T15:00:00Z;admin;2026-04-01T09:30:00Z;admin
