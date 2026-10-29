@@ -41,6 +41,14 @@ entity Products : cuid, managed {
   category    : Category;
   status      : Status default 'A';
   supplier    : Association to Suppliers;
+  reviews     : Composition of many Reviews
+                  on reviews.product = $self;
+}
+
+entity Reviews : cuid, managed {
+  rating  : Integer @mandatory  @assert.range: [1, 5];
+  comment : String(1024);
+  product : Association to Products;
 }
 
 annotate Suppliers with {
@@ -48,5 +56,9 @@ annotate Suppliers with {
 };
 
 annotate Products with {
+  modifiedAt @odata.etag
+};
+
+annotate Reviews with {
   modifiedAt @odata.etag
 };

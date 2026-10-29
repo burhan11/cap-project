@@ -1,0 +1,4 @@
+ID;rating;comment;product_ID;createdAt;createdBy;modifiedAt;modifiedBy
+c3d4e5f6-0001-4c7d-8e1f-000000000001;5;Great sound and battery life;b2c3d4e5-0001-4b6c-9d0e-000000000001;2026-03-01T09:00:00Z;admin;2026-03-01T09:00:00Z;admin
+c3d4e5f6-0002-4c7d-8e1f-000000000002;3;Pens write well but run out quickly;b2c3d4e5-0002-4b6c-9d0e-000000000002;2026-03-02T10:00:00Z;admin;2026-03-02T10:00:00Z;admin
+c3d4e5f6-0003-4c7d-8e1f-000000000003;4;Good quality rice, fair price;b2c3d4e5-0003-4b6c-9d0e-000000000003;2026-03-03T11:00:00Z;admin;2026-03-03T11:00:00Z;admin
