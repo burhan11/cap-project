@@ -1,0 +1,228 @@
+### CatalogService requests (VS Code REST Client / IntelliJ HTTP Client)
+### Start the app first: cds watch
+
+@baseUrl = http://localhost:4004/catalog
+@json = application/json
+
+# IDs from db/data/*.csv
+@headphonesId = b2c3d4e5-0001-4b6c-9d0e-000000000001
+@chairId = b2c3d4e5-0004-4b6c-9d0e-000000000004
+@usbHubId = b2c3d4e5-0005-4b6c-9d0e-000000000005
+@supplierId = a1b2c3d4-0001-4a5b-8c9d-000000000001
+@reviewId = c3d4e5f6-0001-4c7d-8e1f-000000000001
+
+###############################################################
+### Reads
+###############################################################
+
+### Service document / metadata
+GET {{baseUrl}}/$metadata
+
+### Products with derived fields
+GET {{baseUrl}}/Products?$select=name,price,stock,isLowStock,stockCriticality,averageRating,reviewCount
+
+### Products: filter low stock
+GET {{baseUrl}}/Products?$filter=isLowStock eq true&$select=name,stock,stockCriticality
+
+### Products: filter by category and status, ordered by price
+GET {{baseUrl}}/Products?$filter=category_code eq 'EL' and status_code eq 'A'&$orderby=price desc
+
+### Products: expand reviews and supplier
+GET {{baseUrl}}/Products?$expand=reviews,supplier,category,status&$select=name,averageRating,reviewCount
+
+### Product by key
+GET {{baseUrl}}/Products(ID={{headphonesId}},IsActiveEntity=true)?$expand=reviews
+
+### Product without reviews (averageRating null, reviewCount 0)
+GET {{baseUrl}}/Products(ID={{chairId}},IsActiveEntity=true)?$select=name,averageRating,reviewCount
+
+### Reviews
+GET {{baseUrl}}/Reviews?$select=reviewer,rating,comment,createdAt
+
+### Reviews: filter by rating
+GET {{baseUrl}}/Reviews?$filter=rating ge 4
+
+### Review by key
+GET {{baseUrl}}/Reviews(ID={{reviewId}},IsActiveEntity=true)
+
+### Suppliers with location
+GET {{baseUrl}}/Suppliers?$select=name,email,location
+
+### Suppliers: filter by country and expand products
+GET {{baseUrl}}/Suppliers?$filter=country_code eq 'DE'&$expand=products($select=name,stock)
+
+### Supplier by key
+GET {{baseUrl}}/Suppliers({{supplierId}})
+
+### Categories
+GET {{baseUrl}}/Categories
+
+### Categories: filter
+GET {{baseUrl}}/Categories?$filter=code eq 'EL'
+
+### ProductStatus
+GET {{baseUrl}}/ProductStatus
+
+### Read-only entities reject writes (expect 405)
+POST {{baseUrl}}/Categories
+Content-Type: {{json}}
+
+{ "code": "XX", "name": "Not allowed" }
+
+###############################################################
+### restock (bound action on active product)
+###############################################################
+
+### restock: valid quantity (expect 200, stock +5)
+POST {{baseUrl}}/Products(ID={{chairId}},IsActiveEntity=true)/CatalogService.restock
+Content-Type: {{json}}
+If-Match: *
+
+{ "quantity": 5 }
+
+### restock: quantity 0 (expect 400)
+POST {{baseUrl}}/Products(ID={{chairId}},IsActiveEntity=true)/CatalogService.restock
+Content-Type: {{json}}
+If-Match: *
+
+{ "quantity": 0 }
+
+### restock: negative quantity (expect 400)
+POST {{baseUrl}}/Products(ID={{chairId}},IsActiveEntity=true)/CatalogService.restock
+Content-Type: {{json}}
+If-Match: *
+
+{ "quantity": -3 }
+
+###############################################################
+### Draft flow: create draft, patch, activate
+###############################################################
+
+### 1. Create draft product
+# @name createDraft
+POST {{baseUrl}}/Products
+Content-Type: {{json}}
+
+{
+  "name": "Standing Desk",
+  "description": "Height-adjustable desk",
+  "price": 399.00,
+  "currency_code": "EUR",
+  "stock": 9,
+  "category_code": "FU",
+  "status_code": "A",
+  "supplier_ID": "{{supplierId}}"
+}
+
+###
+@newId = {{createDraft.response.body.ID}}
+
+### 2. Patch draft (change price and stock)
+PATCH {{baseUrl}}/Products(ID={{newId}},IsActiveEntity=false)
+Content-Type: {{json}}
+If-Match: *
+
+{ "price": 379.00, "stock": 12 }
+
+### 3. Add a review to the draft
+POST {{baseUrl}}/Products(ID={{newId}},IsActiveEntity=false)/reviews
+Content-Type: {{json}}
+
+{ "reviewer": "Jane Doe", "rating": 4, "comment": "Sturdy and quiet motor" }
+
+### 4. Activate draft
+POST {{baseUrl}}/Products(ID={{newId}},IsActiveEntity=false)/CatalogService.draftActivate
+Content-Type: {{json}}
+If-Match: *
+
+{}
+
+### 5. Read the activated product with derived fields
+GET {{baseUrl}}/Products(ID={{newId}},IsActiveEntity=true)?$select=name,price,stock,isLowStock,stockCriticality,averageRating,reviewCount&$expand=reviews
+
+###############################################################
+### restock is not allowed while a draft exists
+###############################################################
+
+### Edit an existing product (creates a draft)
+POST {{baseUrl}}/Products(ID={{usbHubId}},IsActiveEntity=true)/CatalogService.draftEdit
+Content-Type: {{json}}
+If-Match: *
+
+{ "PreserveChanges": true }
+
+### restock while draft exists (expect 409)
+POST {{baseUrl}}/Products(ID={{usbHubId}},IsActiveEntity=true)/CatalogService.restock
+Content-Type: {{json}}
+If-Match: *
+
+{ "quantity": 10 }
+
+### Discard the draft
+DELETE {{baseUrl}}/Products(ID={{usbHubId}},IsActiveEntity=false)
+If-Match: *
+
+###############################################################
+### Negative cases
+###############################################################
+
+### Price 0: create draft
+# @name badPriceDraft
+POST {{baseUrl}}/Products
+Content-Type: {{json}}
+
+{ "name": "Free Item", "price": 0, "currency_code": "EUR" }
+
+###
+@badPriceId = {{badPriceDraft.response.body.ID}}
+
+### Price 0: activate (expect 400, error on price)
+POST {{baseUrl}}/Products(ID={{badPriceId}},IsActiveEntity=false)/CatalogService.draftActivate
+Content-Type: {{json}}
+If-Match: *
+
+{}
+
+### Rating 6: create draft with an invalid review
+# @name badRatingDraft
+POST {{baseUrl}}/Products
+Content-Type: {{json}}
+
+{
+  "name": "Rating Test",
+  "price": 10,
+  "currency_code": "EUR",
+  "reviews": [ { "reviewer": "Tester", "rating": 6, "comment": "Out of range" } ]
+}
+
+###
+@badRatingId = {{badRatingDraft.response.body.ID}}
+
+### Rating 6: activate (expect 400, error on rating)
+POST {{baseUrl}}/Products(ID={{badRatingId}},IsActiveEntity=false)/CatalogService.draftActivate
+Content-Type: {{json}}
+If-Match: *
+
+{}
+
+### Missing reviewer: activate (expect 400)
+# @name noReviewerDraft
+POST {{baseUrl}}/Products
+Content-Type: {{json}}
+
+{
+  "name": "Reviewer Test",
+  "price": 10,
+  "currency_code": "EUR",
+  "reviews": [ { "rating": 3, "comment": "No reviewer name" } ]
+}
+
+###
+@noReviewerId = {{noReviewerDraft.response.body.ID}}
+
+###
+POST {{baseUrl}}/Products(ID={{noReviewerId}},IsActiveEntity=false)/CatalogService.draftActivate
+Content-Type: {{json}}
+If-Match: *
+
+{}

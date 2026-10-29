@@ -46,6 +46,7 @@ entity Products : cuid, managed {
 }
 
 entity Reviews : cuid, managed {
+  reviewer : String(100) @mandatory;
   rating  : Integer @mandatory  @assert.range: [1, 5];
   comment : String(1024);
   product : Association to Products;

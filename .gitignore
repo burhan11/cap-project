@@ -4,3 +4,13 @@ gen/
 default-env.json
 .env
 @cds-models
+
+mta_archives/
+*.mtar
+default-*.json
+*.db
+dist/
+coverage/
+.cds-lint-cache/
+.claude/settings.local.json
+*.log
