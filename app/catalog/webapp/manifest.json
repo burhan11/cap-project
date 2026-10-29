@@ -1,0 +1,178 @@
+{
+  "_version": "1.89.0",
+  "sap.app": {
+    "id": "com.valantic.claude.catalog",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.32.0",
+      "toolsId": "dfea19ad-9381-4b3e-88d7-63e18cecf863"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/catalog/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.154.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "com.valantic.claude.catalog.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "ProductsList",
+          "target": "ProductsList"
+        },
+        {
+          "pattern": "Products({key}):?query:",
+          "name": "ProductsObjectPage",
+          "target": "ProductsObjectPage"
+        },
+        {
+          "pattern": "Products({key})/reviews({key2}):?query:",
+          "name": "ReviewsObjectPage",
+          "target": "ReviewsObjectPage"
+        }
+      ],
+      "targets": {
+        "ProductsList": {
+          "type": "Component",
+          "id": "ProductsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Products",
+              "variantManagement": "Page",
+              "navigation": {
+                "Products": {
+                  "detail": {
+                    "route": "ProductsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ProductsObjectPage": {
+          "type": "Component",
+          "id": "ProductsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Products",
+              "navigation": {
+                "reviews": {
+                  "detail": {
+                    "route": "ReviewsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "reviews/@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "creationMode": {
+                      "name": "Inline"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ReviewsObjectPage": {
+          "type": "Component",
+          "id": "ReviewsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Products/reviews"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.fe": {
+    "app": {
+      "enableLazyLoading": true
+    }
+  }
+}
